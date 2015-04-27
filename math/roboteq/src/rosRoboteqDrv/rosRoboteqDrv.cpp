@@ -101,15 +101,24 @@ void    RosRoboteqDrv::CmdVelCallback(const geometry_msgs::Twist::ConstPtr& twis
     std::stringstream ss;
 
     if( _comunicator.Mode() == RoboteqCom::eSerial )
-	{
+    {
         ss << "!G " << _left << " " << (((int)leftVelRPM) * 100);
         ss << "_!G " << _right << " " << (((int)rightVelRPM) * 100);
     }
-	else
+    else
     {
-        ss << "@00!G " << _left << " " << (((int)leftVelRPM) * 100);
-        ss << "_@00!G " << _right << " " << (((int)rightVelRPM) * 100);
-	}
+        //ss << "@00!G " << _left << " " << (((int)leftVelRPM) * 100);
+        //ss << "_@00!G " << _right << " " << (((int)rightVelRPM) * 100);
+        
+        for( int i = 1; i <= 3; i++) // 3 is number of wheel pairs
+        {
+            if( i != 1 )
+                ss << "_";
+
+            ss <<  "@0" << i << "!G " << _left  << " " << (((int)leftVelRPM)  * 100);
+            ss << "_@0" << i << "!G " << _right << " " << (((int)rightVelRPM) * 100);
+        }
+    }
 
     try
     {
@@ -124,6 +133,32 @@ void    RosRoboteqDrv::CmdVelCallback(const geometry_msgs::Twist::ConstPtr& twis
     {
         ROS_ERROR_STREAM_NAMED(NODE_NAME,"IssueCommand : ?");
 	    throw;
+    }
+}
+
+bool RosRoboteqDrv::SetActuatorPosition(TSrvAct_Req &req, TSrvAct_Res &res)
+{
+    std::stringstream ss;
+
+    if( _comunicator.Mode() == RoboteqCom::eCAN )
+    {
+        ss << "@04!G 1 " << req.actuator_position;
+        ss << "_@04!G 2 " << req.actuator_position;
+    }
+
+    try
+    {
+        _comunicator.IssueCommand(ss.str());
+    }
+    catch(std::exception& ex)
+    {
+        ROS_ERROR_STREAM_NAMED(NODE_NAME,"IssueCommand : " << ex.what());
+        throw;
+    }
+    catch(...)
+    {
+        ROS_ERROR_STREAM_NAMED(NODE_NAME,"IssueCommand : ?");
+        throw;
     }
 }
 

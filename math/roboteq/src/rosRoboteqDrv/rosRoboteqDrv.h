@@ -6,6 +6,7 @@
 #include <geometry_msgs/Twist.h>    // Twist message file
 #include <string>
 #include <roboteq_node/wheels_msg.h>
+#include <roboteq_node/Actuators.h>
 
 /// Scipio dimensions and stuff
 #define METERS_PER_TICK_SCIPIO  0.0011169116
@@ -16,7 +17,7 @@
 #define SLEEP_INTERVAL          0.05
 #define RPM_TO_RAD_PER_SEC      0.1047
 
-#define NODE_NAME		        "roboteq_node"
+#define NODE_NAME	        "roboteq_node"
 
 // ROS Roboteq Driver
 // Robert J. Gebis (oxoocoffee) <rjgebis@yahoo.com>
@@ -40,16 +41,18 @@
 // MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
 // General Public License for more details at
 // http://www.gnu.org/copyleft/gpl.html
-
-// Our Roboteq HDC2450 is in CLOSED-LOOP speed mode. Set the MXRPM
+// RMC: SDC2160N is OPEN-LOOP speed CAN mode.
+// IGVC: Our Roboteq HDC2450 is in CLOSED-LOOP speed mode. Set the MXRPM
 // through the Roborun/RoboteqDbg tools. 
 
 using namespace oxoocoffee;
 
 class RosRoboteqDrv : public SerialLogger, public IEventListener<const IEventArgs>
 {
-    typedef roboteq_node::wheels_msg    TWheelMsg;
-    typedef geometry_msgs::Twist        TTwist;
+    typedef roboteq_node::wheels_msg            TWheelMsg;
+    typedef geometry_msgs::Twist                TTwist;
+    typedef roboteq_node::Actuators::Request    TSrvAct_Req;
+    typedef roboteq_node::Actuators::Response   TSrvAct_Res;
 
     public:
         RosRoboteqDrv(void);
@@ -58,8 +61,12 @@ class RosRoboteqDrv : public SerialLogger, public IEventListener<const IEventArg
         void        Run(void);
         void        Shutdown(void);
         void        CmdVelCallback(const TTwist::ConstPtr& twist_velocity);
+        bool        SetActuatorPosition(TSrvAct_Req &req,
+                                        TSrvAct_Res &res);
+
         static TWheelMsg   ConvertTwistToWheelVelocity(const TTwist::ConstPtr& twist_velocity);   
-        static TTwist      ConvertWheelVelocityToTwist(float left_velocity, float right_velocity);
+        static TTwist      ConvertWheelVelocityToTwist( float left_velocity, 
+                                                        float right_velocity);
  
         ros::NodeHandle     _nh;
     
@@ -77,15 +84,16 @@ class RosRoboteqDrv : public SerialLogger, public IEventListener<const IEventArg
         virtual void    Log(const char* pBuffer, unsigned int len);
         virtual void    Log(const std::string& message);
 
-	    void    Process_S(const IEventArgs& evt);
-	    void    Process_G(const IEventArgs& evt);
-	    void    Process_N(const IEventArgs& evt);
+	void    Process_S(const IEventArgs& evt);
+	void    Process_G(const IEventArgs& evt);
+        void    Process_N(const IEventArgs& evt);
 
     private:
         bool                _logEnabled;
         RoboteqCom          _comunicator;
         ros::Subscriber     _sub;
         ros::Publisher      _pub;
+        ros::ServiceServer  _service;
         TWheelMsg           _wheelVelocity;
         std::string         _left;
         std::string         _right;

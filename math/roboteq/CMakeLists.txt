@@ -8,6 +8,11 @@ add_message_files(
     wheels_msg.msg
 )
 
+add_service_files(
+    FILES
+    Actuators.srv
+)
+
 generate_messages(
     DEPENDENCIES
     std_msgs

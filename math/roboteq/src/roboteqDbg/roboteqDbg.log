@@ -179,3 +179,27 @@ RoboteqCom - login ok
 RoboteqCom - reader started
 SerialPort - disconnect
 RoboteqCom - joining reader
++++++++++ Opened ++++++++
+Running CAN Mode
+RoboteqCom - connecting [CAN]
+SerialPort - setting up raw mode
+SerialPort - setting baud to 115200
+SerialPort - setting up data size to 8 bits
+SerialPort - setting up 1 stop bit
+SerialPort - disable parity
+SerialPort - disable flow control
+SerialPort - opening /dev/ttyUSB0
+SerialPort - connected /dev/ttyUSB0
+RoboteqCom - connected
++++++++++ Opened ++++++++
+Running CAN Mode
+RoboteqCom - connecting [CAN]
+SerialPort - setting up raw mode
+SerialPort - setting baud to 115200
+SerialPort - setting up data size to 8 bits
+SerialPort - setting up 1 stop bit
+SerialPort - disable parity
+SerialPort - disable flow control
+SerialPort - opening /dev/ttyUSB0
+SerialPort - connected /dev/ttyUSB0
+RoboteqCom - connected

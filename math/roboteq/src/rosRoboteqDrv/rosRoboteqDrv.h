@@ -7,6 +7,8 @@
 #include <string>
 #include <roboteq_node/wheels_msg.h>
 #include <roboteq_node/Actuators.h>
+#include <roboteq_node/SendCANCommand.h>
+#include <base_controller/Xbox_Button_Msg.h>
 
 /// Scipio dimensions and stuff
 #define METERS_PER_TICK_SCIPIO  0.0011169116
@@ -51,8 +53,12 @@ class RosRoboteqDrv : public SerialLogger, public IEventListener<const IEventArg
 {
     typedef roboteq_node::wheels_msg            TWheelMsg;
     typedef geometry_msgs::Twist                TTwist;
+
     typedef roboteq_node::Actuators::Request    TSrvAct_Req;
     typedef roboteq_node::Actuators::Response   TSrvAct_Res;
+
+    typedef roboteq_node::SendCANCommand::Request    TSrvCAN_Req;
+    typedef roboteq_node::SendCANCommand::Response   TSrvCAN_Res;
 
     public:
         RosRoboteqDrv(void);
@@ -61,8 +67,11 @@ class RosRoboteqDrv : public SerialLogger, public IEventListener<const IEventArg
         void        Run(void);
         void        Shutdown(void);
         void        CmdVelCallback(const TTwist::ConstPtr& twist_velocity);
+        void        XButtonCallback(const base_controller::Xbox_Button_Msg::ConstPtr& buttons);
         bool        SetActuatorPosition(TSrvAct_Req &req,
                                         TSrvAct_Res &res);
+        bool        ManualCANCommand(TSrvCAN_Req &req, 
+                                     TSrvCAN_Res &res);
 
         static TWheelMsg   ConvertTwistToWheelVelocity(const TTwist::ConstPtr& twist_velocity);   
         static TTwist      ConvertWheelVelocityToTwist( float left_velocity, 
@@ -92,6 +101,7 @@ class RosRoboteqDrv : public SerialLogger, public IEventListener<const IEventArg
         bool                _logEnabled;
         RoboteqCom          _comunicator;
         ros::Subscriber     _sub;
+        ros::Subscriber     _buttonSub;
         ros::Publisher      _pub;
         ros::ServiceServer  _service;
         TWheelMsg           _wheelVelocity;

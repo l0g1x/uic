@@ -11,6 +11,7 @@ add_message_files(
 add_service_files(
     FILES
     Actuators.srv
+    SendCANCommand.srv
 )
 
 generate_messages(
